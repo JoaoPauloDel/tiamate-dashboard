@@ -5,17 +5,16 @@ import { AXIOS } from './../services/index';
 import { useEffect, useState } from "react";
 import { LuPencil, LuPlus, LuTrash2 } from "react-icons/lu";
 
-
-const Usuarios = () => {
+const Categorias = () => {
 
     const { notification } = App.useApp();
-    const [usuarios, setUsuarios] = useState([]);
+    const [categorias, setCategorias] = useState([]);
     const [mostrarCriar, setMostrarCriar] = useState(false);
     const [mostrarEditar, setMostrarEditar] = useState(false);
     const [formEditar] = Form.useForm();
 
     async function buscar() {
-        const res = await AXIOS.get("/usuarios", {
+        const res = await AXIOS.get("/categorias", {
             headers: {
                 Authorization: `Bearer ${sessionStorage.getItem("token")}`
             }
@@ -30,12 +29,12 @@ const Usuarios = () => {
             return;
         }
 
-        setUsuarios(res.data);
+        setCategorias(res.data);
     }
 
     async function criar(dados) {
         try {
-            const res = await AXIOS.post("/usuarios", dados, {
+            const res = await AXIOS.post("/categorias", dados, {
                 headers: {
                     Authorization: `Bearer ${sessionStorage.getItem("token")}`
                 }
@@ -49,17 +48,15 @@ const Usuarios = () => {
                 });
                 return;
             }
+
             notification.success({
-                title: "Sucesso:",
+                title: "Aviso:",
                 description: res.data.mensagem,
                 placement: "bottomRight"
             });
             setMostrarCriar(false);
             buscar();
         } catch (error) {
-            console.log(error);
-
-
             notification.error({
                 title: "Aviso:",
                 description: error.response.data.mensagem,
@@ -70,7 +67,7 @@ const Usuarios = () => {
 
     async function editar(dados) {
         try {
-            const res = await AXIOS.put(`/usuarios/${dados.id}`, dados, {
+            const res = await AXIOS.put(`/categorias/${dados.id}`, dados, {
                 headers: {
                     Authorization: `Bearer ${sessionStorage.getItem("token")}`
                 }
@@ -84,17 +81,15 @@ const Usuarios = () => {
                 });
                 return;
             }
+
             notification.success({
-                title: "Sucesso:",
+                title: "Aviso:",
                 description: res.data.mensagem,
                 placement: "bottomRight"
             });
             setMostrarEditar(false);
             buscar();
         } catch (error) {
-            console.log(error);
-
-
             notification.error({
                 title: "Aviso:",
                 description: error.response.data.mensagem,
@@ -105,22 +100,19 @@ const Usuarios = () => {
 
     async function deletar(id) {
         try {
-            const res = await AXIOS.delete(`/usuarios/${id}`, {
+            const res = await AXIOS.delete(`/categorias/${id}`, {
                 headers: {
                     Authorization: `Bearer ${sessionStorage.getItem("token")}`
                 }
             });
 
             notification.success({
-                title: "Sucesso:",
+                title: "Aviso:",
                 description: res.data.mensagem,
                 placement: "bottomRight"
             });
             buscar();
         } catch (error) {
-            console.log(error);
-
-
             notification.error({
                 title: "Aviso:",
                 description: error.response.data.mensagem,
@@ -136,12 +128,18 @@ const Usuarios = () => {
     return (
         <div>
             <div className="flex justify-between items-center mb-5">
-                <h1 className="text-2xl text-vinho font-bold">Usuários</h1>
-                <Button onClick={() => setMostrarCriar(true)} type="primary" icon={<LuPlus />}>Novo usuário</Button>
+                <h1 className="text-2xl text-vinho font-bold">Categorias</h1>
+                <Button
+                    onClick={() => setMostrarCriar(true)}
+                    type="primary"
+                    icon={<LuPlus />}
+                >
+                    Nova categoria
+                </Button>
             </div>
 
             <Table
-                dataSource={usuarios || []}
+                dataSource={categorias || []}
                 rowKey={"id"}
             >
                 <Table.Column
@@ -150,24 +148,19 @@ const Usuarios = () => {
                     rowKey="nome"
                 />
                 <Table.Column
-                    title="Email"
-                    dataIndex={"email"}
-                    rowKey="email"
-                />
-                <Table.Column
                     title="Ações"
                     className="w-25"
-                    render={(_, usuario) => (
+                    render={(_, categoria) => (
                         <div className="flex gap-4 justify-end">
                             <Button
                                 icon={<LuPencil />}
                                 shape="circle"
                                 type="primary"
                                 onClick={() => {
-                                    formEditar.setFieldValue("id", usuario.id);
-                                    formEditar.setFieldValue("nome", usuario.nome);
-                                    formEditar.setFieldValue("email", usuario.email);
-                                    setMostrarEditar(true);
+                                    formEditar.setFieldValue("id", categoria.id);
+                                    formEditar.setFieldValue("nome", categoria.nome);
+
+                                    setMostrarEditar(true)
                                 }}
                             />
                             <Popconfirm
@@ -175,7 +168,7 @@ const Usuarios = () => {
                                 description="Deseja realmente apagar?"
                                 cancelText="Não"
                                 okText="Sim"
-                                onConfirm={() => deletar(usuario.id)}
+                                onConfirm={() => deletar(categoria.id)}
                             >
                                 <Button
                                     icon={<LuTrash2 />}
@@ -187,8 +180,9 @@ const Usuarios = () => {
                     )}
                 />
             </Table>
+
             <Drawer
-                title="Novo usuário"
+                title="Nova categoria"
                 open={mostrarCriar}
                 onClose={() => setMostrarCriar(false)}
             >
@@ -203,26 +197,12 @@ const Usuarios = () => {
                     >
                         <Input placeholder="Digite um nome" />
                     </Form.Item>
-                    <Form.Item
-                        label="Email"
-                        name="email"
-                        rules={[{ required: true, message: "Campo obrigatório" }]}
-                    >
-                        <Input placeholder="Digite um email" />
-                    </Form.Item>
-                    <Form.Item
-                        label="Senha"
-                        name="senha"
-                        rules={[{ required: true, message: "Campo obrigatório" }]}
-                    >
-                        <Input placeholder="********" />
-                    </Form.Item>
                     <Button type="primary" htmlType="submit" className="w-full">Criar</Button>
                 </Form>
             </Drawer>
 
             <Drawer
-                title="Editar usuário"
+                title="Editar categoria"
                 open={mostrarEditar}
                 onClose={() => setMostrarEditar(false)}
             >
@@ -244,23 +224,11 @@ const Usuarios = () => {
                     >
                         <Input placeholder="Digite um nome" />
                     </Form.Item>
-
-                    <Form.Item
-                        label="Email"
-                        name="email"
-                        rules={[{ required: true, message: "Campo obrigatório" }]}
-                    >
-                        <Input placeholder="Digite um email" />
-                    </Form.Item>
-                    <Form.Item
-                        label="Senha"
-                        name="senha"
-                    >
-                        <Input placeholder="********" />
-                    </Form.Item>
                     <Button type="primary" htmlType="submit" className="w-full">Editar</Button>
+                </Form>
+            </Drawer>
         </div>
     );
 }
 
-export default Usuarios;
+export default Categorias;

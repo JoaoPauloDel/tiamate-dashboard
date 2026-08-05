@@ -5,17 +5,16 @@ import { AXIOS } from './../services/index';
 import { useEffect, useState } from "react";
 import { LuPencil, LuPlus, LuTrash2 } from "react-icons/lu";
 
-
-const Usuarios = () => {
+const Interessados = () => {
 
     const { notification } = App.useApp();
-    const [usuarios, setUsuarios] = useState([]);
+    const [interessados, setInteressados] = useState([]);
     const [mostrarCriar, setMostrarCriar] = useState(false);
     const [mostrarEditar, setMostrarEditar] = useState(false);
     const [formEditar] = Form.useForm();
 
     async function buscar() {
-        const res = await AXIOS.get("/usuarios", {
+        const res = await AXIOS.get("/interessados", {
             headers: {
                 Authorization: `Bearer ${sessionStorage.getItem("token")}`
             }
@@ -30,12 +29,12 @@ const Usuarios = () => {
             return;
         }
 
-        setUsuarios(res.data);
+        setInteressados(res.data);
     }
 
     async function criar(dados) {
         try {
-            const res = await AXIOS.post("/usuarios", dados, {
+            const res = await AXIOS.post("/interessados", dados, {
                 headers: {
                     Authorization: `Bearer ${sessionStorage.getItem("token")}`
                 }
@@ -49,17 +48,15 @@ const Usuarios = () => {
                 });
                 return;
             }
+
             notification.success({
-                title: "Sucesso:",
+                title: "Aviso:",
                 description: res.data.mensagem,
                 placement: "bottomRight"
             });
             setMostrarCriar(false);
             buscar();
         } catch (error) {
-            console.log(error);
-
-
             notification.error({
                 title: "Aviso:",
                 description: error.response.data.mensagem,
@@ -70,7 +67,7 @@ const Usuarios = () => {
 
     async function editar(dados) {
         try {
-            const res = await AXIOS.put(`/usuarios/${dados.id}`, dados, {
+            const res = await AXIOS.put(`/interessados/${dados.id}`, dados, {
                 headers: {
                     Authorization: `Bearer ${sessionStorage.getItem("token")}`
                 }
@@ -84,17 +81,15 @@ const Usuarios = () => {
                 });
                 return;
             }
+
             notification.success({
-                title: "Sucesso:",
+                title: "Aviso:",
                 description: res.data.mensagem,
                 placement: "bottomRight"
             });
             setMostrarEditar(false);
             buscar();
         } catch (error) {
-            console.log(error);
-
-
             notification.error({
                 title: "Aviso:",
                 description: error.response.data.mensagem,
@@ -105,22 +100,19 @@ const Usuarios = () => {
 
     async function deletar(id) {
         try {
-            const res = await AXIOS.delete(`/usuarios/${id}`, {
+            const res = await AXIOS.delete(`/interessados/${id}`, {
                 headers: {
                     Authorization: `Bearer ${sessionStorage.getItem("token")}`
                 }
             });
 
             notification.success({
-                title: "Sucesso:",
+                title: "Aviso:",
                 description: res.data.mensagem,
                 placement: "bottomRight"
             });
             buscar();
         } catch (error) {
-            console.log(error);
-
-
             notification.error({
                 title: "Aviso:",
                 description: error.response.data.mensagem,
@@ -136,12 +128,18 @@ const Usuarios = () => {
     return (
         <div>
             <div className="flex justify-between items-center mb-5">
-                <h1 className="text-2xl text-vinho font-bold">Usuários</h1>
-                <Button onClick={() => setMostrarCriar(true)} type="primary" icon={<LuPlus />}>Novo usuário</Button>
+                <h1 className="text-2xl text-vinho font-bold">Interessados</h1>
+                {/* <Button
+                    onClick={() => setMostrarCriar(true)}
+                    type="primary"
+                    icon={<LuPlus />}
+                >
+                    Nova unidade
+                </Button> */}
             </div>
 
             <Table
-                dataSource={usuarios || []}
+                dataSource={interessados || []}
                 rowKey={"id"}
             >
                 <Table.Column
@@ -155,19 +153,45 @@ const Usuarios = () => {
                     rowKey="email"
                 />
                 <Table.Column
+                    title="Telefone"
+                    dataIndex={"telefone"}
+                    rowKey="telefone"
+                />
+                <Table.Column
+                    title="Cidade"
+                    dataIndex={"cidade"}
+                    rowKey="cidade"
+                />
+                <Table.Column
+                    title="Estado"
+                    dataIndex={"estado"}
+                    rowKey="estado"
+                />
+                <Table.Column
+                    title="Como"
+                    dataIndex={"como"}
+                    rowKey="como"
+                />
+                <Table.Column
+                    title="Data"
+                    render={(_, interessado) => new Date(interessado.data).toLocaleDateString()}
+                />
+                {/* <Table.Column
                     title="Ações"
                     className="w-25"
-                    render={(_, usuario) => (
+                    render={(_, unidade) => (
                         <div className="flex gap-4 justify-end">
                             <Button
                                 icon={<LuPencil />}
                                 shape="circle"
                                 type="primary"
                                 onClick={() => {
-                                    formEditar.setFieldValue("id", usuario.id);
-                                    formEditar.setFieldValue("nome", usuario.nome);
-                                    formEditar.setFieldValue("email", usuario.email);
-                                    setMostrarEditar(true);
+                                    formEditar.setFieldValue("id", unidade.id);
+                                    formEditar.setFieldValue("nome", unidade.nome);
+                                    formEditar.setFieldValue("endereco", unidade.endereco);
+                                    formEditar.setFieldValue("horario", unidade.horario);
+                                    formEditar.setFieldValue("telefone", unidade.telefone);
+                                    setMostrarEditar(true)
                                 }}
                             />
                             <Popconfirm
@@ -175,7 +199,7 @@ const Usuarios = () => {
                                 description="Deseja realmente apagar?"
                                 cancelText="Não"
                                 okText="Sim"
-                                onConfirm={() => deletar(usuario.id)}
+                                onConfirm={() => deletar(unidade.id)}
                             >
                                 <Button
                                     icon={<LuTrash2 />}
@@ -185,82 +209,10 @@ const Usuarios = () => {
                             </Popconfirm>
                         </div>
                     )}
-                />
+                /> */}
             </Table>
-            <Drawer
-                title="Novo usuário"
-                open={mostrarCriar}
-                onClose={() => setMostrarCriar(false)}
-            >
-                <Form
-                    layout="vertical"
-                    onFinish={criar}
-                >
-                    <Form.Item
-                        label="Nome"
-                        name="nome"
-                        rules={[{ required: true, message: "Campo obrigatório" }]}
-                    >
-                        <Input placeholder="Digite um nome" />
-                    </Form.Item>
-                    <Form.Item
-                        label="Email"
-                        name="email"
-                        rules={[{ required: true, message: "Campo obrigatório" }]}
-                    >
-                        <Input placeholder="Digite um email" />
-                    </Form.Item>
-                    <Form.Item
-                        label="Senha"
-                        name="senha"
-                        rules={[{ required: true, message: "Campo obrigatório" }]}
-                    >
-                        <Input placeholder="********" />
-                    </Form.Item>
-                    <Button type="primary" htmlType="submit" className="w-full">Criar</Button>
-                </Form>
-            </Drawer>
-
-            <Drawer
-                title="Editar usuário"
-                open={mostrarEditar}
-                onClose={() => setMostrarEditar(false)}
-            >
-                <Form
-                    form={formEditar}
-                    layout="vertical"
-                    onFinish={editar}
-                >
-                    <Form.Item
-                        name="id"
-                        hidden
-                    >
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
-                        label="Nome"
-                        name="nome"
-                        rules={[{ required: true, message: "Campo obrigatório" }]}
-                    >
-                        <Input placeholder="Digite um nome" />
-                    </Form.Item>
-
-                    <Form.Item
-                        label="Email"
-                        name="email"
-                        rules={[{ required: true, message: "Campo obrigatório" }]}
-                    >
-                        <Input placeholder="Digite um email" />
-                    </Form.Item>
-                    <Form.Item
-                        label="Senha"
-                        name="senha"
-                    >
-                        <Input placeholder="********" />
-                    </Form.Item>
-                    <Button type="primary" htmlType="submit" className="w-full">Editar</Button>
         </div>
     );
 }
 
-export default Usuarios;
+export default Interessados;

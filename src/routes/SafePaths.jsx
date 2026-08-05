@@ -1,4 +1,3 @@
-import axios from "axios";
 import { Navigate, useNavigate } from "react-router";
 import { AXIOS } from "../services";
 
@@ -25,7 +24,7 @@ const SafePaths = ({ children }) => {
             return response;
         },
         function (error) {
-            if(error.response.status === 401) {
+            if (error?.response?.status === 401) {
                 sessionStorage.clear();
                 navigate("/");
             }
@@ -34,7 +33,6 @@ const SafePaths = ({ children }) => {
             return Promise.reject(error);
         }
     );
-
     return token ? children : <Navigate to={"/"} />;
 }
 
